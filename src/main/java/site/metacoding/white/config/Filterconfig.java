@@ -14,39 +14,25 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import site.metacoding.white.config.auth.JwtAuthenticationFilter;
+import site.metacoding.white.domain.UserRepository;
 
 @Slf4j
+@RequiredArgsConstructor
 @Configuration
 public class Filterconfig {
 
+    private final UserRepository userRepository; // 스프링의 IOC컨테이너에서 옴
+
     @Bean // IOC Container 등록
-    public FilterRegistrationBean<HelloFilter> jwtAuthenticationFilterRegister() {
+    public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilterRegister() {
         log.debug("디버그 : 인증 필터 등록");
         // 필터 생성
-        FilterRegistrationBean<HelloFilter> bean = new FilterRegistrationBean<>(new HelloFilter());
-        bean.addUrlPatterns("/hello");
+        FilterRegistrationBean<JwtAuthenticationFilter> bean = new FilterRegistrationBean<>(
+                new JwtAuthenticationFilter(userRepository));
+        bean.addUrlPatterns("/login");
         return bean;
     }
-}
-
-@Slf4j
-class HelloFilter implements Filter {
-
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-            throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) request;
-        HttpServletResponse resp = (HttpServletResponse) response;
-
-        if (req.getMethod().equals("POST")) {
-            log.debug("디버그 : HelloFilter 실행됨");
-        } else {
-            log.debug("디버그 : POST요청이 아니어서 실행할 수 없습니다.");
-        }
-
-        // chain.doFilter(req, resp);
-
-    }
-
 }
